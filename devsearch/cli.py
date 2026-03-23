@@ -83,6 +83,11 @@ Examples:
         help="Show live agent reasoning: Thought → Action → Observation",
     )
     parser.add_argument(
+        "--debug", "-d",
+        action="store_true",
+        help="Print the raw LLM output before parsing (useful for troubleshooting)",
+    )
+    parser.add_argument(
         "--version",
         action="version",
         version="DevSearch 0.1.0",
@@ -134,6 +139,7 @@ def main():
                 lang=args.lang,
                 groq_api_key=groq_key,
                 verbose=True,
+                debug=args.debug,
                 print_fn=reasoning_print,
             )
         else:
@@ -146,6 +152,7 @@ def main():
                     lang=args.lang,
                     groq_api_key=groq_key,
                     verbose=False,
+                    debug=args.debug,
                     print_fn=None,
                 )
 
