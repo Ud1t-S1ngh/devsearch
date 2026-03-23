@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "devsearch"
+version = "0.1.0"
+description = "AI-powered CLI that researches coding questions across Stack Overflow, Docs, GitHub Issues, and the web"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "langchain>=0.3.0",
+    "langchain-groq>=0.2.0",
+    "langchain-community>=0.3.0",
+    "langchain-core>=0.3.0",
+    "requests>=2.31.0",
+    "rich>=13.7.0",
+    "python-dotenv>=1.0.0",
+    "duckduckgo-search>=6.0.0",
+]
+
+[project.scripts]
+devs = "devsearch.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["devsearch*"]
