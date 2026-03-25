@@ -10,7 +10,6 @@ import time
 from typing import Callable
 
 try:
-    # LangChain >= 1.x — moved to langchain_classic
     from langchain_classic.agents import AgentExecutor, create_react_agent
 except ImportError:
     try:
@@ -24,8 +23,6 @@ from langchain_core.prompts import PromptTemplate
 from langchain_groq import ChatGroq
 
 from .tools import ALL_TOOLS
-
-# ─── Prompt ──────────────────────────────────────────────────────────────────
 
 REACT_PROMPT = PromptTemplate.from_template(
     """You are DevSearch, an expert programming assistant that researches coding questions
@@ -74,8 +71,6 @@ Tool names: {tool_names}
 {agent_scratchpad}"""
 )
 
-# ─── Callback for live reasoning display ─────────────────────────────────────
-
 from langchain_core.callbacks.base import BaseCallbackHandler
 
 
@@ -111,10 +106,6 @@ class ReasoningCallback(BaseCallbackHandler):
     def on_agent_finish(self, finish, **kwargs):
         self.print_fn("Agent finished reasoning.", "done")
 
-
-# ─── Agent builder ────────────────────────────────────────────────────────────
-
-
 def build_agent(groq_api_key: str, verbose: bool = False) -> AgentExecutor:
     """Build and return the configured AgentExecutor."""
     llm = ChatGroq(
@@ -136,10 +127,6 @@ def build_agent(groq_api_key: str, verbose: bool = False) -> AgentExecutor:
         return_intermediate_steps=True,
     )
 
-
-# ─── Answer parser ────────────────────────────────────────────────────────────
-
-
 def parse_answer(raw: str) -> dict:
     """
     Parse the structured Final Answer into components.
@@ -158,21 +145,16 @@ def parse_answer(raw: str) -> dict:
     if not raw or not raw.strip():
         return result
 
-    # ── Try structured parsing first ──────────────────────────────────────────
-
-    # Extract EXPLANATION (case-insensitive, flexible spacing)
     m = re.search(r"EXPLANATION[:\s]+(.*?)(?=\nCODE[:\s]|\nSOURCES[:\s]|\nCONFIDENCE[:\s]|$)", raw, re.DOTALL | re.IGNORECASE)
     if m:
         result["explanation"] = m.group(1).strip()
 
-    # Extract CODE block
     m = re.search(r"CODE[:\s]+(.*?)(?=\nSOURCES[:\s]|\nCONFIDENCE[:\s]|$)", raw, re.DOTALL | re.IGNORECASE)
     if m:
         code_text = m.group(1).strip()
         if code_text.lower() not in ("no code needed", "n/a", "none", ""):
             result["code"] = code_text
 
-    # Extract SOURCES
     m = re.search(r"SOURCES[:\s]+(.*?)(?=\nCONFIDENCE[:\s]|$)", raw, re.DOTALL | re.IGNORECASE)
     if m:
         sources_raw = m.group(1).strip()
@@ -183,39 +165,31 @@ def parse_answer(raw: str) -> dict:
         ]
         result["sources"] = [s for s in sources if s]
 
-    # Extract CONFIDENCE
     m = re.search(r"CONFIDENCE[:\s]+(High|Medium|Low)", raw, re.IGNORECASE)
     if m:
         result["confidence"] = m.group(1).capitalize()
 
-    # Extract REASON
     m = re.search(r"REASON[:\s]+(.+?)(?:\n|$)", raw, re.IGNORECASE)
     if m:
         result["reason"] = m.group(1).strip()
 
-    # ── Fallback: if structured parsing got nothing, use the raw text ─────────
-    # This handles cases where the LLM answers correctly but ignores the format
     if not result["explanation"]:
         # Try to extract any fenced code blocks from raw
         code_blocks = re.findall(r"```[\w]*\n?(.*?)```", raw, re.DOTALL)
         if code_blocks:
             result["code"] = "\n\n".join(f"```\n{b.strip()}\n```" for b in code_blocks)
-            # Everything before the first code block becomes the explanation
+
             before_code = raw[:raw.find("```")].strip()
             result["explanation"] = before_code if before_code else raw.split("```")[0].strip()
         else:
-            # No structure at all — use the whole raw output as explanation
+
             result["explanation"] = raw.strip()
 
-        # Set confidence to Medium when falling back (we got an answer but unstructured)
+
         result["confidence"] = "Medium"
         result["reason"] = "Answer retrieved but LLM did not follow structured output format."
 
     return result
-
-
-# ─── Main run function ────────────────────────────────────────────────────────
-
 
 def run_query(
     query: str,
@@ -253,7 +227,6 @@ def run_query(
     if verbose and print_fn:
         callbacks.append(ReasoningCallback(print_fn=print_fn))
 
-    # Build and run agent
     executor = build_agent(groq_api_key=groq_api_key, verbose=verbose)
 
     start = time.time()

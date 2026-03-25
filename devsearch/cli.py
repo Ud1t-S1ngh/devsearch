@@ -15,16 +15,14 @@ import os
 import sys
 from pathlib import Path
 
-# Load .env if present (before any other imports that need env vars)
 try:
     from dotenv import load_dotenv
-    # Look for .env in CWD, home dir, and package dir
     for env_path in [Path.cwd() / ".env", Path.home() / ".devsearch" / ".env"]:
         if env_path.exists():
             load_dotenv(env_path)
             break
     else:
-        load_dotenv()  # Try default locations
+        load_dotenv()
 except ImportError:
     pass
 
@@ -113,7 +111,6 @@ def main():
 
     print_logo()
 
-    # Prompt interactively if no query given
     if not args.query:
         try:
             args.query = console.input("[bold cyan]Ask a coding question:[/bold cyan] ").strip()
@@ -143,7 +140,6 @@ def main():
                 print_fn=reasoning_print,
             )
         else:
-            # Non-verbose: show spinner
             result = None
             with searching_spinner(args.query):
                 result = run_query(

@@ -20,7 +20,6 @@ from rich.table import Table
 from rich.text import Text
 from rich.theme import Theme
 
-# ─── Theme ───────────────────────────────────────────────────────────────────
 
 THEME = Theme(
     {
@@ -39,7 +38,6 @@ THEME = Theme(
 
 console = Console(theme=THEME)
 
-# ─── Logo / Header ────────────────────────────────────────────────────────────
 
 LOGO = """[bold cyan]
  ██████╗ ███████╗██╗   ██╗███████╗███████╗ █████╗ ██████╗  ██████╗██╗  ██╗
@@ -56,7 +54,6 @@ def print_logo():
     console.print(LOGO)
 
 
-# ─── Reasoning printer (used as callback) ────────────────────────────────────
 
 _reasoning_lines: list[str] = []
 
@@ -74,7 +71,6 @@ def reasoning_print(text: str, style: str):
         console.print(f"  [done]✓ {text}[/done]")
 
 
-# ─── Spinner context ──────────────────────────────────────────────────────────
 
 @contextmanager
 def searching_spinner(query: str):
@@ -90,7 +86,6 @@ def searching_spinner(query: str):
         yield progress
 
 
-# ─── Verbose reasoning header ─────────────────────────────────────────────────
 
 def print_reasoning_header(query: str):
     console.print()
@@ -99,7 +94,6 @@ def print_reasoning_header(query: str):
     console.print()
 
 
-# ─── Final answer renderer ────────────────────────────────────────────────────
 
 def _extract_code_blocks(text: str) -> list[tuple[str, str]]:
     """Extract (language, code) pairs from fenced code blocks."""
@@ -123,7 +117,7 @@ def render_answer(parsed: dict, query: str):
     console.print(Rule("[bold magenta]📋 DevSearch Answer[/bold magenta]", style="magenta"))
     console.print()
 
-    # ── Explanation panel ──
+
     if parsed.get("explanation"):
         console.print(
             Panel(
@@ -135,7 +129,7 @@ def render_answer(parsed: dict, query: str):
         )
         console.print()
 
-    # ── Code blocks ──
+
     code_text = parsed.get("code", "")
     if code_text:
         blocks = _extract_code_blocks(code_text)
@@ -150,7 +144,6 @@ def render_answer(parsed: dict, query: str):
                     )
                 )
         else:
-            # Plain code (no fences)
             console.print(
                 Panel(
                     Syntax(code_text, "text", theme="monokai", word_wrap=True),
@@ -161,7 +154,6 @@ def render_answer(parsed: dict, query: str):
             )
         console.print()
 
-    # ── Sources table ──
     sources = parsed.get("sources", [])
     if sources:
         table = Table(
@@ -180,7 +172,6 @@ def render_answer(parsed: dict, query: str):
         console.print(table)
         console.print()
 
-    # ── Confidence badge ──
     level = parsed.get("confidence", "Low")
     reason = parsed.get("reason", "")
     c_style = _confidence_style(level)
@@ -196,14 +187,12 @@ def render_answer(parsed: dict, query: str):
         Panel(confidence_text, border_style="dim", padding=(0, 2))
     )
 
-    # ── Timing ──
     elapsed = parsed.get("elapsed", 0)
     console.print()
     console.print(f"[elapsed]  ⏱  Completed in {elapsed}s[/elapsed]")
     console.print()
 
 
-# ─── Error display ────────────────────────────────────────────────────────────
 
 def render_error(message: str):
     console.print()

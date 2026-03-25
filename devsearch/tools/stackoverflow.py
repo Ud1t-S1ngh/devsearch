@@ -15,7 +15,6 @@ def search_stackoverflow(query: str) -> str:
         query: The coding question or error to search for.
     """
     try:
-        # Search for questions
         search_url = "https://api.stackexchange.com/2.3/search/advanced"
         params = {
             "q": query,
@@ -31,7 +30,6 @@ def search_stackoverflow(query: str) -> str:
         data = resp.json()
 
         if not data.get("items"):
-            # Fallback: search without requiring accepted answer
             params.pop("accepted")
             resp = requests.get(search_url, params=params, timeout=8)
             data = resp.json()
@@ -48,7 +46,6 @@ def search_stackoverflow(query: str) -> str:
             answer_count = item.get("answer_count", 0)
             link = item.get("link", "")
 
-            # Fetch the top answer
             answer_url = f"https://api.stackexchange.com/2.3/questions/{question_id}/answers"
             a_params = {
                 "site": "stackoverflow",
@@ -67,7 +64,6 @@ def search_stackoverflow(query: str) -> str:
                 import html
                 import re
                 raw = answers[0].get("body", "")
-                # Strip HTML tags for readability
                 clean = re.sub(r"<[^>]+>", "", html.unescape(raw))
                 answer_text = clean[:800].strip()
                 answer_score = answers[0].get("score", 0)

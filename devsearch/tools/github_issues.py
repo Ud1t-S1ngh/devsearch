@@ -20,7 +20,6 @@ def search_github_issues(query: str) -> str:
             "Accept": "application/vnd.github+json",
             "X-GitHub-Api-Version": "2022-11-28",
         }
-        # Add token if available for higher rate limits
         token = os.getenv("GITHUB_TOKEN")
         if token:
             headers["Authorization"] = f"Bearer {token}"

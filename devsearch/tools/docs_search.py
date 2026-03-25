@@ -2,7 +2,6 @@
 
 from langchain_core.tools import tool
 
-# Map of popular languages/frameworks to their official doc domains
 DOCS_DOMAINS = {
     "python": "docs.python.org",
     "javascript": "developer.mozilla.org",
@@ -72,7 +71,6 @@ def search_docs(query: str) -> str:
             hits = list(ddgs.text(search_query, max_results=4))
 
         if not hits:
-            # Retry without site filter
             with DDGS() as ddgs:
                 hits = list(ddgs.text(f"{query} official documentation", max_results=4))
 
