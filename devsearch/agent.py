@@ -13,7 +13,6 @@ try:
     from langchain_classic.agents import AgentExecutor, create_react_agent
 except ImportError:
     try:
-        # LangChain 0.x legacy path
         from langchain.agents import AgentExecutor, create_react_agent
     except ImportError:
         raise ImportError(
@@ -120,7 +119,7 @@ def build_agent(groq_api_key: str, verbose: bool = False) -> AgentExecutor:
     return AgentExecutor(
         agent=agent,
         tools=ALL_TOOLS,
-        verbose=False,  # We handle our own output via callbacks
+        verbose=False,
         handle_parsing_errors=True,
         max_iterations=8,
         max_execution_time=30,
@@ -174,7 +173,6 @@ def parse_answer(raw: str) -> dict:
         result["reason"] = m.group(1).strip()
 
     if not result["explanation"]:
-        # Try to extract any fenced code blocks from raw
         code_blocks = re.findall(r"```[\w]*\n?(.*?)```", raw, re.DOTALL)
         if code_blocks:
             result["code"] = "\n\n".join(f"```\n{b.strip()}\n```" for b in code_blocks)
@@ -222,7 +220,6 @@ def run_query(
     if context:
         full_query += f"\n\nError/Context:\n```\n{context}\n```"
 
-    # Set up callbacks
     callbacks = []
     if verbose and print_fn:
         callbacks.append(ReasoningCallback(print_fn=print_fn))
